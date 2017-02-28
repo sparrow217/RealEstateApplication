@@ -1,0 +1,5 @@
+Here is all the SQL data for use:
+
+mysql> create table re (id int not null AUTO_INCREMENT, bed float not null, bath float not null, sqft int not null, yard varchar(3) not null, uid int not null, zipcode int not null, typere varchar(30) not null, furnished varchar(3), schoolrateing varchar(30), garage varchar(30), dw varchar(3), wash varchar(3), dry varchar(3), heat varchar(3), pets varchar (3), notes varchar(600), primary key (id));
+mysql> insert into re (bed, bath, sqft, yard, bath, sqft, yard, uid, zipcode, typere, furnished, schoolrateing, garage, dw, wash, dry, heat, pets, notes) values (1.5,1.5,1,y,1,68135,'house','no','na','y','y','n','y','y','good house');
+mysql> insert into re (bed, bath, sqft, yard, uid, zipcode, typere) values (1.5,1.5,1,'y',1,68135,'house');        

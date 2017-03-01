@@ -9,3 +9,7 @@ Customer:
 mysql> create table cust (ID INT NOT NULL AUTO_INCREMENT, fname VARCHAR(30) not null, lname VARCHAR(30) not null, xsqft int, isqft int, zip int, bed float, bath float, yard varchar(3), type varchar(30), email varchar(60) not null, primary key (ID));
 mysql> Insert into cust ( fname, lname, xsqft, isqft, zip, bed, bath, yard, type, email ) VALUES ( 'FTEST', 'LTEST', 10000, 5000, 68135, 3.5, 1.5, 'Yes', 'House', 'tmp@test.com');
 mysql> Insert into cust ( fname, lname, email ) VALUES ( 'FTEST2', 'LTEST2', 'tmp2@test.com');      
+
+Reaitor/Independent
+mysql> create table retor (ID int not null auto_increment, fname varchar(30) not null, lname varchar(30) not null, company varchar(30) not null, email varchar(60) not null, primary key (ID));
+mysql> Insert into retor (fname, lname, company, email) values ('fnameS', 'lnameS', 'goodsales', 'buy@house.org');

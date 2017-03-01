@@ -1,5 +1,11 @@
 Here is all the SQL data for use:
 
+Reas Estate:
 mysql> create table re (id int not null AUTO_INCREMENT, bed float not null, bath float not null, sqft int not null, yard varchar(3) not null, uid int not null, zipcode int not null, typere varchar(30) not null, furnished varchar(3), schoolrateing varchar(30), garage varchar(30), dw varchar(3), wash varchar(3), dry varchar(3), heat varchar(3), pets varchar (3), notes varchar(600), primary key (id));
 mysql> insert into re (bed, bath, sqft, yard, bath, sqft, yard, uid, zipcode, typere, furnished, schoolrateing, garage, dw, wash, dry, heat, pets, notes) values (1.5,1.5,1,y,1,68135,'house','no','na','y','y','n','y','y','good house');
 mysql> insert into re (bed, bath, sqft, yard, uid, zipcode, typere) values (1.5,1.5,1,'y',1,68135,'house');        
+
+Customer:
+mysql> create table cust (ID INT NOT NULL AUTO_INCREMENT, fname VARCHAR(30) not null, lname VARCHAR(30) not null, xsqft int, isqft int, zip int, bed float, bath float, yard varchar(3), type varchar(30), email varchar(60) not null, primary key (ID));
+mysql> Insert into cust ( fname, lname, xsqft, isqft, zip, bed, bath, yard, type, email ) VALUES ( 'FTEST', 'LTEST', 10000, 5000, 68135, 3.5, 1.5, 'Yes', 'House', 'tmp@test.com');
+mysql> Insert into cust ( fname, lname, email ) VALUES ( 'FTEST2', 'LTEST2', 'tmp2@test.com');      

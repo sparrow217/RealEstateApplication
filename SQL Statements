@@ -1,6 +1,19 @@
 Here is all the SQL data for use:
 
-Reas Estate:
+
+I updated table re to add a seller column. For use connect to the server, connect to sql, the same as in the class tutorial.
+From there you can copy and paste any statement to insert new data, just be sure to change the filled in fields with new data.
+
+
+If there are any questions feel free to ask, also to see data the easiset way is to use 
+
+mysql> select * from TABLENAME;
+
+The above statement will select all data in the table selected
+
+
+
+Real Estate:
 mysql> alter table re add COLUMN sellerid int not null;
 mysql> create table re (id int not null AUTO_INCREMENT, bed float not null, bath float not null, sqft int not null, yard varchar(3) not null, uid int not null, zipcode int not null, typere varchar(30) not null, furnished varchar(3), schoolrateing varchar(30), garage varchar(30), dw varchar(3), wash varchar(3), dry varchar(3), heat varchar(3), pets varchar (3), notes varchar(600), primary key (id));
 mysql> insert into re (bed, bath, sqft, yard, bath, sqft, yard, uid, zipcode, typere, furnished, schoolrateing, garage, dw, wash, dry, heat, pets, notes) values (1.5,1.5,1,y,1,68135,'house','no','na','y','y','n','y','y','good house');
@@ -14,3 +27,7 @@ mysql> Insert into cust ( fname, lname, email ) VALUES ( 'FTEST2', 'LTEST2', 'tm
 Reaitor/Independent
 mysql> create table retor (ID int not null auto_increment, fname varchar(30) not null, lname varchar(30) not null, company varchar(30) not null, email varchar(60) not null, primary key (ID));
 mysql> Insert into retor (fname, lname, company, email) values ('fnameS', 'lnameS', 'goodsales', 'buy@house.org');
+
+
+Relational Table (Favorites)
+mysql> create table fav (cID int not null, reID int not null, foreign key (cID) references cust(ID), foreign key (reID) references re(ID));

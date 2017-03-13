@@ -1,0 +1,119 @@
+
+import java.io.*;
+import java.util.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class MyServlet
+ */
+@WebServlet("/MyServlet")
+public class MyServlet extends HttpServlet {
+	private static final long		serialVersionUID	= 1L;
+	static String			url		= "jdbc:mysql://nwec2nw.ddns.net:3306/myDB";
+	static String			user		= "newremoteuser";
+	static String			password		= "password";
+	static Connection			connection	= null;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public MyServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html;charset=UTF-8");
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			System.out.println("Where is your MySQL JDBC Driver?");
+			e.printStackTrace();
+			return;
+		}
+		connection = null;
+		try {
+			connection = DriverManager.getConnection(url, user, password);
+		} catch (SQLException e) {
+			System.out.println("Connection Failed! Check output console");
+			e.printStackTrace();
+			return;
+		}
+		if (connection != null) {
+			response.getWriter().println();
+		} else {
+			System.out.println("Failed to make connection!");
+		}
+		
+		
+		}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
+		
+		String tmp = request.getParameter("query");
+		String print = "";
+		try {
+			String selectSQL = "SELECT * FROM re WHERE typere = \"" + tmp + "\"";
+			PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				String id = rs.getString("id");
+				String typere = rs.getString("typere");
+				String sellerid = rs.getString("sellerid");
+				String bed = rs.getString("bed");
+				String bath = rs.getString("bath");
+				String sqft = rs.getString("sqft");
+				
+//				PrintWriter out = response.getWriter();
+//				out.println(id);
+//				out.println(typere);
+//				out.println(sellerid);
+//				out.println(bed);
+//				out.println(bath);
+//				out.println(sqft);
+				
+				response.getWriter().append("RE ID: " + id + ", ");
+				response.getWriter().append("REType: " + typere + ", ");
+				response.getWriter().append("SellerID: " + sellerid + ", ");
+				response.getWriter().append("Bed: " + bed + ", ");
+				response.getWriter().append("Bath: " + bath + ", ");
+				response.getWriter().append("Square Feet:" + sqft + "<br>");
+				print = print + id + "\t" + typere +  "\t" + sellerid + "\t" + bed + "\t" +bath + "\t" + sqft + "\n";
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		String htmlResponse = "<html>";
+		htmlResponse += "<h2>Your username is: <br/>";
+		htmlResponse += "Your password is</h2>";
+		htmlResponse += "</html>";
+		PrintWriter writer = response.getWriter();
+		writer.println(htmlResponse);
+		request.setAttribute("print", print);
+		request.getRequestDispatcher("/WEB-INF/lib/SearchResults.jsp");
+		
+	}
+
+}

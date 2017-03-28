@@ -1,0 +1,154 @@
+<program> ::= <stmt-list>
+
+<stmt-list> ::= <cond-stmt> <stmt-list> | <iter-stmt> <stmt-list> | <stmt> ; <stmt-list> | ε
+
+<stmt> ::=   <dec>
+        |    <assign>
+        |    <additive>
+        |    <block>
+        |    <print-stmt>
+        |   <prepost-expr>
+
+<block> ::= “{“ <stmt-list> “}”
+
+<print-stmt> ::= “print” “(“ <assign> “)”
+
+<cond-stmt> ::= “if” “(” <logi-or-expr> “)” <block>
+             | “if” “(” <logi-or-expr> “)” <block> “else” <block>
+
+<iter-stmt> ::= “while” “(“ <logi-or-expr> “)” <block-statement> 
+             | “for” “(“ <assign> “;” <rel-expr> “;” <for-assign> ”)” <block-statement>
+
+<for-assign> ::= ++id
+        | id++
+        | --id
+        | id--
+        | <assign>
+
+
+<dec> ::= <type> id
+       | <type> <assign>
+
+<assign> ::= id “=” <logi-or-expr>
+
+<logi-or-expr> ::= <logi-and-expr>
+                | <logi-or-expr> “or” <logi-and-expr>
+
+<logi-and-expr> ::= <equ-expr>
+                 | <logi-and-expr> “and” <logi-and-expr>
+
+<equ-expr> ::= <rel-expr>
+            | <equ-expr> “==” <rel-expr>
+            | <equ-expr> “!=” <rel-expr>
+
+<rel-expr> ::= <addi-expr>
+            | <addi-expr> “<” <addi-expr>
+            | <addi-expr> “>” <addi-expr>
+
+<addi-expr> ::= <multi-expr>
+            | <addi-expr> “+” <multi-expr>
+            | <addi-expr> “-” <multi-expr>
+
+<multi-expr> ::= <exp-expr>
+              | <multi-expr> “*” <exp-expr>
+              | <multi-expr> “/” <exp-expr>
+              | <multi-expr> “%” <exp-expr>
+
+<exp-expr> ::= <unary-expr>
+        | <exp-expr> “^” <addi-expr>
+
+
+<unary-expr> ::= <prepost-expr>
+ | <unary-oper> <primary-expr>
+
+<unary-oper> ::= “-”
+              | “not”
+
+<prepost-expr ::= <primary-expr>
+          | id “++”
+          | id “--”
+          | “++” id
+          | “--” id
+    
+
+<primary-expr> ::= “(“ <logi-or-expr> “)”
+           | “|” <logi-or-expr> “|”
+           | id
+           | integer 
+           | bool
+
+
+<type> ::= “int” | “bool”
+
+
+
+
+
+REGEX
+
+    reserved
+Reserved = { “++“, “+“, “--“, “-“, “^“, “*“, “/“, “%“, “<“, “>“, “==“, “!=”, “print”,
+“and“, “or“, “=“, “if”, “else”, “while”, “for”, “(“, “)”, “{“, “}” }
+
+    posDigit = 1 + … + 9
+    digit = 0 + posDigit
+integer = 0 + posDigit digit*    
+
+boolean
+(true + false)
+
+id
+[A-z]+
+
+
+
+
+
+Precedence
+Operator
+Description
+Associativity
+1 (High)
+-
+not
+Unary minus
+Logical not
+Right to left
+2
+^
+exponent
+Right to left
+4
+*
+/
+%
+Multiplication
+Division
+Modulus 
+Left to right
+5
++
+-
+Addition
+Subtraction
+Left to right
+
+6
+<
+>
+Relational comparison
+Left to right
+8
+==
+!=
+equality
+Left to right
+9
+and
+Conditional AND
+Left to right
+10
+or
+Conditional OR
+Left to right
+

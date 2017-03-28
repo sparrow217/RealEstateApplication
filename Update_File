@@ -1,0 +1,271 @@
+/*
+ * @(#) View.java
+ *
+ */
+package view;
+
+import java.util.EventObject;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.e4.ui.di.Focus;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.zest.core.viewers.GraphViewer;
+import org.eclipse.zest.core.widgets.Graph;
+import org.eclipse.zest.core.widgets.GraphNode;
+import org.eclipse.zest.layouts.LayoutStyles;
+import org.eclipse.zest.layouts.algorithms.RadialLayoutAlgorithm;
+import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
+
+import analysis.MoveMethodAnalyzer;
+import analysis.ProjectAnalyzer;
+import graph.model.GClassNode;
+import graph.model.GMethodNode;
+import graph.model.GNode;
+import graph.model.GNodeType;
+import graph.model.GPackageNode;
+import graph.provider.GLabelProvider;
+import graph.provider.GModelProvider;
+import graph.provider.GNodeContentProvider;
+import util.UtilMsg;
+
+public class MyGraphView {
+   public static final String VIEW_ID                  = "simplezestproject5.partdescriptor.simplezestview5";
+
+   private GraphViewer        gViewer;
+   private int                layout                   = 0;
+   private Menu               mPopupMenu               = null;
+   private MenuItem           menuItemMoveMethod       = null, menuItemRefresh = null;
+   private GraphNode          selectedSrcGraphNode     = null, selectedDstGraphNode = null;
+
+  GPackageNode selectedPackageNode = null;
+   private GraphNode          prevSelectedDstGraphNode = null;
+
+   private GNode              selectedMethodNode       = null, selectedClassNode = null;
+   private GNode              prevSelectedClassNode    = null;
+
+   @PostConstruct
+   public void createControls(Composite parent) {
+      gViewer = new GraphViewer(parent, SWT.BORDER);
+      gViewer.setContentProvider(new GNodeContentProvider());
+      gViewer.setLabelProvider(new GLabelProvider());
+      gViewer.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+      gViewer.applyLayout();
+
+      addPoupMenu();
+      addMouseListenerGraphViewer();
+   }
+
+   private void addPoupMenu() {
+      mPopupMenu = new Menu(gViewer.getControl());
+      gViewer.getControl().setMenu(mPopupMenu);
+
+      menuItemMoveMethod = new MenuItem(mPopupMenu, SWT.CASCADE);
+      menuItemMoveMethod.setText("Move Method");
+      addSelectionListenerMenuItemMoveMethod();
+
+      menuItemRefresh = new MenuItem(mPopupMenu, SWT.CASCADE);
+      menuItemRefresh.setText("Refresh");
+      addSelectionListenerMenuItemRefresh();
+   }
+
+   private void addMouseListenerGraphViewer() {
+      MouseAdapter mouseAdapter = new MouseAdapter() {
+         public void mouseDown(MouseEvent e) {
+            menuItemMoveMethod.setEnabled(false);
+            resetSelectedSrcGraphNode();
+
+            if (isMethodNode(e)) {
+               System.out.println("single clicked");
+               menuItemMoveMethod.setEnabled(true);
+
+               selectedSrcGraphNode = (GraphNode) ((Graph) e.getSource()).getSelection().get(0);
+               selectedSrcGraphNode.setBorderWidth(1);
+
+               selectedMethodNode = (GMethodNode) selectedSrcGraphNode.getData();
+               selectedMethodNode.setNodeType(GNodeType.UserSelection);
+            }
+         }
+
+         @Override
+         public void mouseDoubleClick(MouseEvent e) {
+            if (isClassNode(e)) {
+               System.out.println("double clicked & CLASS NODE");
+               prevSelectedDstGraphNode = selectedDstGraphNode;
+               selectedDstGraphNode = (GraphNode) ((Graph) e.getSource()).getSelection().get(0);
+
+               prevSelectedClassNode = selectedClassNode;
+               selectedClassNode = (GClassNode) selectedDstGraphNode.getData();
+
+               if (selectedClassNode.eq(prevSelectedClassNode)) {
+                  // same node => marked => unmarked
+                  if (selectedClassNode.getNodeType().equals(GNodeType.UserDoubleClicked))
+                     resetDstNode(selectedDstGraphNode, selectedClassNode);
+                  // same node => unmarked => marked
+                  else if (selectedClassNode.getNodeType().equals(GNodeType.InValid))
+                     changeColorDDClikedNode(selectedClassNode);
+
+               } else {
+                  // different node => marked && unmarked previous marked node
+                  changeColorDDClikedNode(selectedClassNode);
+                  resetDstNode(prevSelectedDstGraphNode, prevSelectedClassNode);
+               }
+            }
+            else if(isPackageNode(e))
+            {
+            	System.out.println("PACKAGE NODE");
+            	prevSelectedDstGraphNode = selectedDstGraphNode;
+                selectedDstGraphNode = (GraphNode) ((Graph) e.getSource()).getSelection().get(0);
+
+                prevSelectedClassNode = selectedPackageNode;
+                selectedPackageNode = (GPackageNode) selectedDstGraphNode.getData();
+                changeColorDDClikedNode(selectedPackageNode);
+                 
+            }
+           
+         }
+      };
+      gViewer.getControl().addMouseListener(mouseAdapter);
+   }
+
+   private boolean isClassNode(EventObject e) {
+      Object obj = e.getSource();
+      Graph graph = (Graph) obj;
+
+      return (!graph.getSelection().isEmpty() && //
+            graph.getSelection().get(0) instanceof GraphNode && //
+            ((GraphNode) graph.getSelection().get(0)).getData() instanceof GClassNode);
+   }
+
+   private boolean isMethodNode(EventObject e) {
+      Object obj = e.getSource();
+      Graph instGraph = (Graph) obj;
+      List<?> selection = instGraph.getSelection();
+      return ((!selection.isEmpty() && selection.get(0) instanceof GraphNode) && //
+            (((GraphNode) selection.get(0)).getData() instanceof GMethodNode));
+   }
+
+   private boolean isPackageNode(EventObject e) {
+	      Object obj = e.getSource();
+	      Graph instGraph = (Graph) obj;
+	      List<?> selection = instGraph.getSelection();
+	      return ((!selection.isEmpty() && selection.get(0) instanceof GraphNode) && //
+	            (((GraphNode) selection.get(0)).getData() instanceof GPackageNode));
+	   }
+   
+   private void changeColorDDClikedNode(GNode node) {
+      if (this.selectedDstGraphNode == null)
+         return;
+      
+          selectedDstGraphNode.setForegroundColor(ColorConstants.red);
+          selectedDstGraphNode.setBackgroundColor(ColorConstants.blue);
+          selectedDstGraphNode.setBorderColor(ColorConstants.blue);
+          selectedDstGraphNode.setHighlightColor(ColorConstants.blue);
+          selectedDstGraphNode.setBorderHighlightColor(ColorConstants.black);
+          node.setNodeType(GNodeType.UserDoubleClicked);
+          System.out.println("THIS IS case 2" + node.getName());
+
+ 
+   }
+
+   private void resetDstNode(GraphNode graphNode, GNode node) {
+      if (graphNode == null || graphNode.isDisposed() || !(node instanceof GClassNode))
+         return;
+      graphNode.setForegroundColor(ColorConstants.black);
+      graphNode.setBackgroundColor(ColorConstants.lightBlue);
+      graphNode.setBorderColor(ColorConstants.lightBlue);
+      graphNode.setHighlightColor(ColorConstants.lightBlue);
+      graphNode.setBorderHighlightColor(ColorConstants.lightBlue);
+      node.setNodeType(GNodeType.InValid);
+   }
+
+   private void addSelectionListenerMenuItemMoveMethod() {
+      SelectionListener menuItemListenerMoveMethod = new SelectionListener() {
+         @Override
+         public void widgetSelected(SelectionEvent e) {
+            if (!isNodesSelected()) {
+               String msg = "Please select class and method nodes. " //
+                     + "Select a class node by double-click and select a method node by single-click";
+               UtilMsg.openWarning(msg);
+               System.out.println("[DBG] " + msg);
+               return;
+            }
+            if (((GMethodNode) selectedMethodNode).isParent((GClassNode) selectedClassNode)) {
+               String msg = "Please select a different class as move destination.";
+               UtilMsg.openWarning(msg);
+               System.out.println("[DBG] " + msg);
+               return;
+            }
+            System.out.println("[DBG] MenuItem MoveMethod");
+            MoveMethodAnalyzer moveMethodAnalyzer = new MoveMethodAnalyzer();
+            moveMethodAnalyzer.setMethodToBeMoved((GMethodNode) selectedMethodNode);
+            moveMethodAnalyzer.setClassMoveDestination((GClassNode) selectedClassNode);
+            moveMethodAnalyzer.analyze();
+            moveMethodAnalyzer.moveMethod();
+            resetSelectedSrcGraphNode();
+            resetDstNode(selectedDstGraphNode, selectedClassNode);
+            syncZestViewAndJavaEditor();
+         }
+
+         private boolean isNodesSelected() {
+            return selectedMethodNode != null && selectedMethodNode.getNodeType().equals(GNodeType.UserSelection) && //
+            selectedClassNode != null && selectedClassNode.getNodeType().equals(GNodeType.UserDoubleClicked);
+         }
+
+         @Override
+         public void widgetDefaultSelected(SelectionEvent e) {
+         }
+      };
+      menuItemMoveMethod.addSelectionListener(menuItemListenerMoveMethod);
+   }
+
+   private void addSelectionListenerMenuItemRefresh() {
+      SelectionListener menuItemListenerRefresh = new SelectionListener() {
+         @Override
+         public void widgetSelected(SelectionEvent e) {
+            System.out.println("[DBG] MenuItem Refresh");
+            syncZestViewAndJavaEditor();
+         }
+
+         @Override
+         public void widgetDefaultSelected(SelectionEvent e) {
+         }
+      };
+      menuItemRefresh.addSelectionListener(menuItemListenerRefresh);
+   }
+
+   private void resetSelectedSrcGraphNode() {
+      if (selectedSrcGraphNode != null && selectedSrcGraphNode.isDisposed() == false) {
+         selectedSrcGraphNode.setBorderWidth(0);
+         selectedMethodNode.setNodeType(GNodeType.InValid);
+      }
+   }
+
+   public void syncZestViewAndJavaEditor() {
+      new ProjectAnalyzer().analyze();
+      gViewer.setInput(GModelProvider.instance().getNodes());
+   }
+
+   public void update() {
+      gViewer.setInput(GModelProvider.instance().getNodes());
+      if (layout % 2 == 0)
+         gViewer.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+      else
+         gViewer.setLayoutAlgorithm(new RadialLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+      layout++;
+   }
+
+   @Focus
+   public void setFocus() {
+      this.gViewer.getGraphControl().setFocus();
+   }
+}

@@ -1,0 +1,362 @@
+import java.io.*;
+import java.util.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/MyServlet")
+public class MyServlet extends HttpServlet {
+	private static final long		serialVersionUID	= 1L;
+	static String			url		= "jdbc:mysql://ec2cphipps.ddns.net:3306/myDB";
+	static String			user		= "newremoteuser";
+	static String			password		= "password";
+	static Connection			connection	= null;
+
+	public MyServlet() {
+		super();
+	}
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html;charset=UTF-8");
+		response.getWriter().println("-------- Connor's SUPER Basic Wedding Registry ------------<br>");
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			System.out.println("Where is your MySQL JDBC Driver?");
+			e.printStackTrace();
+			return;
+		}
+		response.getWriter().println("You Can Select or Add Items!<br>");
+		connection = null;
+		try {
+			connection = DriverManager.getConnection(url, user, password);
+		} catch (SQLException e) {
+			System.out.println("Connection Failed! Check output console");
+			e.printStackTrace();
+			return;
+		}
+		if (connection != null) {
+			response.getWriter().println("Feel Free to Contact Others About Their Items!<br>");
+		} else {
+			System.out.println("Failed to make connection!");
+		}
+		
+		
+		
+		
+		
+		
+
+
+		
+		
+		
+		
+		
+		try {
+			String selectSQL = "SELECT * FROM open_items";
+			//String theUserName = "user%";
+			//response.getWriter().println(selectSQL + "<br>");
+			response.getWriter().println("<br><br>-------------------------------------------------------------------------------------------------<br>");
+			PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+			//preparedStatement.setString(1, theUserName);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				String id = rs.getString("id");
+				String item = rs.getString("Item");
+				String priority = rs.getString("Priority");
+				String cost = rs.getString("Cost");
+				String store = rs.getString("Store");
+				response.getWriter().append("Item ID: " + id + ", ");
+				response.getWriter().append("Item: " + item + ", ");
+				response.getWriter().append("Prioirty: " + priority + ", ");
+				response.getWriter().append("Cost: " + cost + ", ");
+				response.getWriter().append("Store:" + store + "<br>");
+			}
+			//Statement statement = connection.createStatement();
+			//String insertSQL = "INSERT INTO open_items (Item, Prioirty, Store, Cost) VALUES ('1','2','3','4')";
+			//statement.executeUpdate(insertSQL);
+			//preparedStatement = connection.prepareStatement(insertSQL);
+			//preparedStatement.executeUpdate(insertSQL);
+			response.getWriter().append("<br><br><br><br>");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+//		try {
+//			connection = null;
+//			Statement statement = null;
+//			String insertSQL = "INSERT INTO open_items (Item, Priority, Cost, Store) VALUES ('1','2','3','4')";
+//			connection = DriverManager.getConnection(url, user, password);
+//			statement = connection.createStatement();
+//			statement.executeUpdate(insertSQL);
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+		
+		
+		
+		
+		
+		PrintWriter out = response.getWriter();
+		
+		
+//		out.println("<html>\n" +
+//		         "<head><title></title></head>\n" +
+//		         "<body bgcolor=\"#f0f0f0\">\n" +
+//		         "<h1 align=\"center\"> </h1>\n" +
+//		         "<ul>\n" +
+//		         "  <li><b>First Name</b>: "
+//		         + request.getParameter("first_name") + "\n" +
+//		         "  <li><b>Last Name</b>: "
+//		         + request.getParameter("last_name") + "\n" +
+//		         "</ul>\n" +
+//		         "</body></html>");
+		
+		
+		
+        out.println("<html>");
+        out.println("<head>");
+        out.println("<title>Connor's Sample</title>");
+        out.println("</head>");
+        out.println("<body>");
+       //out.println("<h3>Request Parameters Example</h3>");
+        out.println("Parameters in this request:<br>");
+       // if (firstName != null || lastName != null) {
+       //     out.println("First Name:");
+       //     out.println(" = " + HTMLFilter.filter(firstName) + "<br>");
+       //     out.println("Last Name:");
+       //     out.println(" = " + HTMLFilter.filter(lastName));
+       // } else {
+       //     out.println("No Parameters, Please enter some");
+       // }
+        out.println("<P>");
+        out.print("<form action=\"");
+        out.print("MyServlet\" ");
+        out.println("method=POST>");
+        out.println("Item:");
+        out.println("<input type=text size=20 name=it>");
+        out.println("<br>");
+        out.println("Prioirty:");
+        out.println("<input type=text size=20 name=pri>");
+        out.println("<br>");
+        out.println("Cost:");
+        out.println("<input type=text size=20 name=ct>");
+        out.println("<br>");
+        out.println("Store:");
+        out.println("<input type=text size=20 name=st>");
+        out.println("<br>");
+        out.println("<input type=\"submit\" value=\"ADD\">");
+        out.println("</form>");
+        out.println("</body>");
+        out.println("</html>");
+        
+        
+        out.println("<P>");
+        out.print("<form action=\"");
+        out.print("MyServlet\" ");
+        out.println("method=POST>");
+        out.println("ItemID:");
+        out.println("<input type=text size=20 name=itid>");
+        out.println("<br>");
+//        out.println("FName:");
+//        out.println("<input type=text size=20 name=fn>");
+//        out.println("<br>");
+//        out.println("LName:");
+//        out.println("<input type=text size=20 name=lna>");
+//        out.println("<br>");
+//        out.println("E-Mail:");
+//        out.println("<input type=text size=20 name=em>");
+//        out.println("<br>");
+//        out.println("Phone:");
+//        out.println("<input type=text size=20 name=phon>");
+//        out.println("<br>");
+        out.println("<input type=\"submit\" value=\"Remove\">");
+        out.println();
+//        out.println("<input type=\"submit\" onClick=\"history.go(0)\" value=\"APPLY Change\">");
+        out.println("</form>");
+//        out.println("<form><input type=\"button\" onClick=\"history.go(0)\" value=\"Refresh\"></form>");
+        out.println("</body>");
+        out.println("</html>");
+        
+//        out.println("<form><input type=\"button\" onClick=\"history.go(0)\" value=\"Refresh\"></form>");
+        
+        
+        
+        
+      String itd ="";     
+        
+      if(itd!="" && itd!=null){
+    	response.getWriter().append(itd);
+
+   }      
+		try {
+		itd = request.getParameter("itid");
+		if(itd!=null && itd!=""){
+			connection = null;
+			Statement statement = null;
+			String removeSQL = "DELETE FROM open_items WHERE id="+itd+"";
+			connection = DriverManager.getConnection(url, user, password);
+			statement = connection.createStatement();
+			statement.executeUpdate(removeSQL);
+			response.sendRedirect("http://ec2cphipps.ddns.net:8080/IP/MyServlet");
+		}
+	} catch (SQLException e) {
+		e.printStackTrace();
+	}
+        
+        
+        
+        
+        
+        
+//        String itd ="";
+//        String fna ="";
+//        String lnam="";
+//        String ema="";
+//        String pho="";
+//
+//        if(itd!="" && itd!=null){
+//        	response.getWriter().append(itd);
+//        	response.getWriter().append(fna);
+//        	response.getWriter().append(lnam);
+//       	response.getWriter().append(ema);
+//        	response.getWriter().append(pho);
+//       }
+//		
+//		try {
+//			itd = request.getParameter("itid");
+//			fna = request.getParameter("fn");
+//			lnam = request.getParameter("lna");
+//			ema = request.getParameter("em");
+//			pho = request.getParameter("phon");
+//			if(itd!=null && itd!=""){
+//				connection = null;
+//				Statement statement = null;
+//				String selectSQL = "SELECT * FROM open_items WHERE id="+itd+"";
+//				PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+//				//preparedStatement.setString(1, theUserName);
+//				ResultSet rs = preparedStatement.executeQuery();
+//				String id ="";
+//				String item ="";
+//				String priority ="";
+//				String cost ="";
+//				String store ="";
+//				while (rs.next()) {
+//					id = rs.getString("id");
+//					item = rs.getString("Item");
+//					priority = rs.getString("Priority");
+//					cost = rs.getString("Cost");
+//					store = rs.getString("Store");
+//				}
+//				String insertSQL = "INSERT INTO taken_items (Item, Priority, Store, Price, first_name, last_name, eMail, phoneNumber) VALUES ('"+item+"','"+priority+"','"+store+"','"+cost+","+fna+","+lnam+","+ema+","+pho+"')";
+//				connection = DriverManager.getConnection(url, user, password);
+//				statement = connection.createStatement();
+//				statement.executeUpdate(insertSQL);
+//			}
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+        
+        
+        
+		
+        
+        String x = "";
+        String y = "";
+        String a = "";
+        String b ="";
+        
+        if(x!="" && x!=null){
+        	response.getWriter().append(x);
+        	response.getWriter().append(y);
+        	response.getWriter().append(a);
+        	response.getWriter().append(b);
+        }
+		
+		try {
+			x = request.getParameter("it");
+			y = request.getParameter("pri");
+			a = request.getParameter("ct");
+			b = request.getParameter("st");
+			if(x!=null && x!=""){
+				connection = null;
+				Statement statement = null;
+				String insertSQL = "INSERT INTO open_items (Item, Priority, Cost, Store) VALUES ('"+x+"','"+y+"','"+a+"','"+b+"')";
+				connection = DriverManager.getConnection(url, user, password);
+				statement = connection.createStatement();
+				statement.executeUpdate(insertSQL);
+				response.sendRedirect("http://ec2cphipps.ddns.net:8080/IP/MyServlet");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+		try {
+			String selectSQL = "SELECT * FROM taken_items";
+			//String theUserName = "user%";
+			//response.getWriter().println(selectSQL + "<br>");
+			response.getWriter().println("<br><br>-------------------------------------------------------------------------------------------------<br>");
+			PreparedStatement preparedStatement = connection.prepareStatement(selectSQL);
+			//preparedStatement.setString(1, theUserName);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				String id = rs.getString("id");
+				String item = rs.getString("Item");
+				String priority = rs.getString("Priority");
+				String cost = rs.getString("Store");
+				String store = rs.getString("Price");
+				String fn = rs.getString("first_name");
+				String ln = rs.getString("last_name");
+				String em = rs.getString("eMail");
+				String pn = rs.getString("phoneNumber");
+				response.getWriter().append("Item ID: " + id + ", ");
+				response.getWriter().append("Item: " + item + ", ");
+				response.getWriter().append("Prioirty: " + priority + ", ");
+				response.getWriter().append("Store: " + cost + ", ");
+				response.getWriter().append("Cost:" + store + "<br>");
+				response.getWriter().append("First Name: " + fn + ", ");
+				response.getWriter().append("Last Name: " + ln + ", ");
+				response.getWriter().append("E-mail: " + em + ", ");
+				response.getWriter().append("Phone Number:" + pn + "<br>");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doGet(request, response);
+		
+	}
+}

@@ -3,6 +3,7 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.Select;
 
@@ -14,10 +15,11 @@ public class propertyTest {
 
   @Before
   public void setUp() throws Exception {
-    driver = new FirefoxDriver();
-    baseUrl = "http://nwec2.ddns.net:8080/";
-    driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-  }
+	  System.setProperty("webdriver.chrome.driver", "path-chromedriver");
+	  driver = new ChromeDriver();
+	  // driver = new FirefoxDriver();
+	  baseUrl = "http://opensource.demo.orangehrm.com/";
+	  }
 
   @Test
   public void testProperty() throws Exception {
